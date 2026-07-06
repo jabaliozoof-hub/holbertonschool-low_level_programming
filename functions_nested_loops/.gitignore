@@ -1,0 +1,8 @@
+.bash_history
+.bashrc
+.cache/
+.git-credentials
+.openvscode-server/
+.viminfo
+.profile
+*.o
