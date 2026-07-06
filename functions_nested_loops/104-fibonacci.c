@@ -17,7 +17,12 @@ int main(void)
 		carry = (a2 + b2) / 1000000000000000000;
 		next2 = (a2 + b2) % 1000000000000000000;
 		next1 = a1 + b1 + carry;
-		printf(", %lu%018lu", next1, next2);
+		
+		if (next1 > 0)
+			printf(", %lu%018lu", next1, next2);
+		else
+			printf(", %lu", next2);
+			
 		a1 = b1;
 		a2 = b2;
 		b1 = next1;
