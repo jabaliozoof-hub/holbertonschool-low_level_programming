@@ -1,16 +1,15 @@
 #include <stdio.h>
 
 /**
- * main - Simple calculator with menu loop and validation
+ * main - Simple calculator with addition implementation
  *
  * Return: Always 0 (Success)
  */
 int main(void)
 {
-    int choice;
+    int choice, a, b;
 
     do {
-        printf("Simple Calculator\n");
         printf("1) Add\n");
         printf("2) Subtract\n");
         printf("3) Multiply\n");
@@ -20,7 +19,6 @@ int main(void)
 
         if (scanf("%d", &choice) != 1)
         {
-            /* تنظيف المدخلات عند إدخال حروف */
             while(getchar() != '\n');
             printf("Invalid choice\n");
             continue;
@@ -29,7 +27,11 @@ int main(void)
         switch (choice)
         {
             case 1:
-                printf("Adding...\n");
+                printf("A: ");
+                scanf("%d", &a);
+                printf("B: ");
+                scanf("%d", &b);
+                printf("Result: %d\n", a + b);
                 break;
             case 2:
                 printf("Subtracting...\n");
