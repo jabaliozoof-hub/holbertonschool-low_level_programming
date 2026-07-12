@@ -6,14 +6,12 @@
 
 static int dataset[DATASET_SIZE];
 
-/* ... قم بإضافة دالة next_value هنا ... */
 static unsigned int next_value(unsigned int *state)
 {
     *state = (*state * 1103515245u) + 12345u;
     return *state;
 }
 
-/* ... قم بإضافة دالة build_dataset هنا ... */
 static void build_dataset(void)
 {
     unsigned int state;
@@ -23,7 +21,6 @@ static void build_dataset(void)
         dataset[i] = (int)(next_value(&state) % 100000);
 }
 
-/* ... قم بإضافة دالة process_dataset هنا ... */
 static void process_dataset(void)
 {
     int i, v;
@@ -36,7 +33,6 @@ static void process_dataset(void)
     }
 }
 
-/* ... قم بإضافة دالة reduce_checksum هنا ... */
 static unsigned long reduce_checksum(void)
 {
     unsigned long sum;
@@ -47,7 +43,6 @@ static unsigned long reduce_checksum(void)
     return sum;
 }
 
-/* الآن دالة main مع القياسات */
 int main(void)
 {
     unsigned long checksum;
