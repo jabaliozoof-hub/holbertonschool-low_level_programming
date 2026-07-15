@@ -16,7 +16,6 @@ char *leet(char *s)
 	{
 		for (j = 0; l[j] != '\0'; j++)
 		{
-			
 			if (s[i] == l[j])
 			{
 				s[i] = n[j];
