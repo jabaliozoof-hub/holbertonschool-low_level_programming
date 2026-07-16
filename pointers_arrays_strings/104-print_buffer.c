@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include <ctype.h>
 
+/**
+ * print_buffer - prints a buffer
+ * @b: pointer to the buffer
+ * @size: size of the buffer
+ *
+ * Return: nothing
+ */
 void print_buffer(char *b, int size)
 {
 	int i, j;
