@@ -39,6 +39,7 @@ char *infinite_add(char *n1, char *n2, char *r, int size_r)
 	for (i = 0; i < k / 2; i++)
 	{
 		char tmp = r[i];
+
 		r[i] = r[k - 1 - i];
 		r[k - 1 - i] = tmp;
 	}
