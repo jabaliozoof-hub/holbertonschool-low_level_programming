@@ -19,12 +19,9 @@ int _strlen(char *s)
 
 /**
  * print_error - prints Error and exits with 98
- * @result: pointer to allocated memory to free, or NULL
  */
-void print_error(int *result)
+void print_error(void)
 {
-	if (result != NULL)
-		free(result);
 	_putchar('E');
 	_putchar('r');
 	_putchar('r');
@@ -67,7 +64,7 @@ void multiply_and_print(char *s1, char *s2, int len1, int len2)
 	len_result = len1 + len2;
 	result = malloc(sizeof(int) * len_result);
 	if (!result)
-		print_error(NULL);
+		print_error();
 	for (i = 0; i < len_result; i++)
 		result[i] = 0;
 	for (len1 = len1 - 1; len1 >= 0; len1--)
@@ -107,7 +104,7 @@ int main(int argc, char *argv[])
 	int len1, len2;
 
 	if (argc != 3 || !is_digit(argv[1]) || !is_digit(argv[2]))
-		print_error(NULL);
+		print_error();
 	len1 = _strlen(argv[1]);
 	len2 = _strlen(argv[2]);
 	multiply_and_print(argv[1], argv[2], len1, len2);
