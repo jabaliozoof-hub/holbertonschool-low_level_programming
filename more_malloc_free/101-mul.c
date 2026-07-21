@@ -64,7 +64,7 @@ void multiply_and_print(char *s1, char *s2, int len1, int len2)
 	len_result = len1 + len2;
 	result = malloc(sizeof(int) * len_result);
 	if (!result)
-		return;
+		print_error();
 	for (i = 0; i < len_result; i++)
 		result[i] = 0;
 	for (len1 = len1 - 1; len1 >= 0; len1--)
