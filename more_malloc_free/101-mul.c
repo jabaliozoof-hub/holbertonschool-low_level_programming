@@ -51,56 +51,36 @@ int is_digit(char *s)
 }
 
 /**
- * check_args - validates argument count and digit content
- * @argc: argument count
- * @argv: argument vector
- */
-void check_args(int argc, char *argv[])
-{
-	if (argc != 3 || !is_digit(argv[1]) || !is_digit(argv[2]))
-		print_error();
-}
-
-/**
- * multiply - multiplies two number strings and stores result in array
+ * multiply_and_print - multiplies two numbers and prints result
  * @s1: first number string
  * @s2: second number string
- * @result: array to store the result digits
- * @len_result: length of the result array
+ * @len1: length of s1
+ * @len2: length of s2
  */
-void multiply(char *s1, char *s2, int *result, int len_result)
+void multiply_and_print(char *s1, char *s2, int len1, int len2)
 {
-	int i, j, n1, n2, carry, len1, len2;
+	int len_result, i, j, n1, n2, carry, *result, lead = 0;
 
-	(void)len_result;
-	len1 = _strlen(s1);
-	len2 = _strlen(s2);
-
-	for (i = len1 - 1; i >= 0; i--)
+	len_result = len1 + len2;
+	result = malloc(sizeof(int) * len_result);
+	if (!result)
+		exit(1);
+	for (i = 0; i < len_result; i++)
+		result[i] = 0;
+	for (len1 = len1 - 1; len1 >= 0; len1--)
 	{
-		n1 = s1[i] - '0';
+		n1 = s1[len1] - '0';
 		carry = 0;
-		for (j = len2 - 1; j >= 0; j--)
+		for (len2 = _strlen(s2) - 1, j = len2; j >= 0; j--)
 		{
 			n2 = s2[j] - '0';
-			carry += result[i + j + 1] + (n1 * n2);
-			result[i + j + 1] = carry % 10;
+			carry += result[len1 + j + 1] + (n1 * n2);
+			result[len1 + j + 1] = carry % 10;
 			carry /= 10;
 		}
 		if (carry)
-			result[i + j + 1] += carry;
+			result[len1 + j + 1] += carry;
 	}
-}
-
-/**
- * print_result - prints the result array, skipping leading zeros
- * @result: array containing the result digits
- * @len_result: length of the result array
- */
-void print_result(int *result, int len_result)
-{
-	int i, lead = 0;
-
 	for (i = 0; i < len_result; i++)
 	{
 		if (result[i])
@@ -109,6 +89,7 @@ void print_result(int *result, int len_result)
 			_putchar(result[i] + '0');
 	}
 	_putchar('\n');
+	free(result);
 }
 
 /**
@@ -120,27 +101,12 @@ void print_result(int *result, int len_result)
  */
 int main(int argc, char *argv[])
 {
-	char *s1, *s2;
-	int len1, len2, len_result, i, *result;
+	int len1, len2;
 
-	check_args(argc, argv);
-
-	s1 = argv[1];
-	s2 = argv[2];
-	len1 = _strlen(s1);
-	len2 = _strlen(s2);
-	len_result = len1 + len2;
-
-	result = malloc(sizeof(int) * len_result);
-	if (!result)
-		return (1);
-
-	for (i = 0; i < len_result; i++)
-		result[i] = 0;
-
-	multiply(s1, s2, result, len_result);
-	print_result(result, len_result);
-
-	free(result);
+	if (argc != 3 || !is_digit(argv[1]) || !is_digit(argv[2]))
+		print_error();
+	len1 = _strlen(argv[1]);
+	len2 = _strlen(argv[2]);
+	multiply_and_print(argv[1], argv[2], len1, len2);
 	return (0);
 }
