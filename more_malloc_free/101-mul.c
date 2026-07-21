@@ -15,22 +15,6 @@ int _putchar(char c)
 }
 
 /**
- * _puts - prints a string, followed by a new line
- * @str: string to be printed
- */
-void _puts(char *str)
-{
-	int i = 0;
-
-	while (str[i] != '\0')
-	{
-		_putchar(str[i]);
-		i++;
-	}
-	_putchar('\n');
-}
-
-/**
  * _strlen - returns the length of a string
  * @s: string to evaluate
  *
@@ -50,7 +34,12 @@ int _strlen(char *s)
  */
 void print_error(void)
 {
-	_puts("Error");
+	_putchar('E');
+	_putchar('r');
+	_putchar('r');
+	_putchar('o');
+	_putchar('r');
+	_putchar('\n');
 	exit(98);
 }
 
