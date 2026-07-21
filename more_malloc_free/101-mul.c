@@ -18,7 +18,7 @@ int _strlen(char *s)
 }
 
 /**
- * print_error - prints Error and exits with 98
+ * print_error - prints Error and exits with 98 using _exit
  */
 void print_error(void)
 {
@@ -28,7 +28,7 @@ void print_error(void)
 	_putchar('o');
 	_putchar('r');
 	_putchar('\n');
-	exit(98);
+	_exit(98);
 }
 
 /**
@@ -110,4 +110,3 @@ int main(int argc, char *argv[])
 	multiply_and_print(argv[1], argv[2], len1, len2);
 	return (0);
 }
-
