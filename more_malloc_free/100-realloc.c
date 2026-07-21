@@ -7,9 +7,10 @@
  * @old_size: size, in bytes, of the allocated space for ptr
  * @new_size: new size, in bytes, of the new memory block
  *
- * Return: pointer to the new memory block, or NULL if it fails or conditions met
+ * Return: pointer to the new memory block, or NULL if it fails
  */
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
+void *_realloc(void *ptr, unsigned int old_size,
+		unsigned int new_size)
 {
 	char *new_ptr, *old_ptr;
 	unsigned int i, max;
