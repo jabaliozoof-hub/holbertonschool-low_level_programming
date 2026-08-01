@@ -3,44 +3,76 @@
 #include <stdarg.h>
 
 /**
- * print_all - Prints anything based on a format string.
- * @format: A list of types of arguments passed to the function.
- *
- * Return: Nothing.
+ * print_char - prints a char
+ * @args: argument list
+ */
+void print_char(va_list args)
+{
+	printf("%c", va_arg(args, int));
+}
+
+/**
+ * print_int - prints an int
+ * @args: argument list
+ */
+void print_int(va_list args)
+{
+	printf("%d", va_arg(args, int));
+}
+
+/**
+ * print_float - prints a float
+ * @args: argument list
+ */
+void print_float(va_list args)
+{
+	printf("%f", (float)va_arg(args, double));
+}
+
+/**
+ * print_string - prints a string
+ * @args: argument list
+ */
+void print_string(va_list args)
+{
+	char *str = va_arg(args, char *);
+
+	if (!str)
+	{
+		printf("(nil)");
+		return;
+	}
+	printf("%s", str);
+}
+
+/**
+ * print_all - Prints anything based on format.
+ * @format: list of types passed to the function.
  */
 void print_all(const char * const format, ...)
 {
 	va_list args;
-	unsigned int i = 0, j = 0;
-	char *str;
+	int i = 0, j;
 	char *sep = "";
+	const char types[] = "cifs";
 
 	va_start(args, format);
-
 	while (format && format[i])
 	{
 		j = 0;
-		while (j < 4)
+		while (types[j])
 		{
-			if ((format[i] == 'c' && j == 0) ||
-			    (format[i] == 'i' && j == 1) ||
-			    (format[i] == 'f' && j == 2) ||
-			    (format[i] == 's' && j == 3))
+			if (format[i] == types[j])
 			{
 				printf("%s", sep);
 				if (j == 0)
-					printf("%c", va_arg(args, int));
+					print_char(args);
 				if (j == 1)
-					printf("%d", va_arg(args, int));
+					print_int(args);
 				if (j == 2)
-					printf("%f", (float)va_arg(args, double));
+					print_float(args);
 				if (j == 3)
-				{
-					str = va_arg(args, char *);
-					if (!str)
-						str = "(nil)";
-					printf("%s", str);
-				}
+					print_string(args);
 				sep = ", ";
 			}
 			j++;
