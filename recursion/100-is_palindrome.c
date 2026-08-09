@@ -1,7 +1,8 @@
 #include "main.h"
 
 /**
- * _get_strlen - Returns the length of a string recursively.
+ * _get_strlen - Returns the length
+ * of a string recursively.
  * @s: The string to measure.
  *
  * Return: The length of the string.
@@ -16,7 +17,8 @@ int _get_strlen(char *s)
 }
 
 /**
- * check_palindrome - Helper function to recursively check palindrome characters.
+ * check_palindrome - Helper to check
+ * palindrome characters.
  * @s: The string.
  * @start: Start index.
  * @end: End index.
@@ -33,14 +35,16 @@ int check_palindrome(char *s, int start, int end)
 	{
 		return (0);
 	}
-	return (check_palindrome(s, start + 1, end - 1));
+	return (check_palindrome(s, start + 1,
+				 end - 1));
 }
 
 /**
- * is_palindrome - Checks if a string is a palindrome.
+ * is_palindrome - Checks if a string
+ * is a palindrome.
  * @s: The string to check.
  *
- * Return: 1 if it is a palindrome, 0 if not.
+ * Return: 1 if palindrome, 0 if not.
  */
 int is_palindrome(char *s)
 {
