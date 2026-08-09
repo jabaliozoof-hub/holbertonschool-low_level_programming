@@ -211,11 +211,15 @@ void print_entry(unsigned long int e_entry, unsigned char *e_ident)
 {
 	if (e_ident[EI_DATA] == ELFDATA2MSB)
 	{
-		e_entry = ((e_entry << 8) & 0xFF00FF00FF00FF00ULL) |
-			  ((e_entry >> 8) & 0x00FF00FF00FF00FFULL);
-		e_entry = ((e_entry << 16) & 0xFFFF0000FFFF0000ULL) |
-			  ((e_entry >> 16) & 0x0000FFFF0000FFFFULL);
-		e_entry = (e_entry << 32) | (e_entry >> 32);
+		unsigned char *p = (unsigned char *)&e_entry;
+		unsigned long int res = 0;
+		int i;
+
+		for (i = 7; i >= 0; i--)
+		{
+			res = (res << 8) | p[i];
+		}
+		e_entry = res;
 	}
 
 	printf("  Entry point address:                ");
