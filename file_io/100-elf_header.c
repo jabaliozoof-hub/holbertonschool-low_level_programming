@@ -13,8 +13,8 @@ void print_data(unsigned char *e_ident);
 void print_version(unsigned char *e_ident);
 void print_osabi(unsigned char *e_ident);
 void print_abi(unsigned char *e_ident);
-void print_type(unsigned int e_type, unsigned char *e_ident);
-void print_entry(unsigned long int e_entry, unsigned char *e_ident);
+void print_type(unsigned char *buf, unsigned char *e_ident);
+void print_entry(unsigned char *buf, unsigned char *e_ident);
 void close_file(int fd);
 
 /**
@@ -171,13 +171,18 @@ void print_abi(unsigned char *e_ident)
 
 /**
  * print_type - Prints the ELF type.
- * @e_type: The ELF type.
+ * @buf: A pointer to the header buffer.
  * @e_ident: A pointer to an array containing the ELF class.
  */
-void print_type(unsigned int e_type, unsigned char *e_ident)
+void print_type(unsigned char *buf, unsigned char *e_ident)
 {
+	unsigned int e_type;
+	unsigned char *p = buf + 16;
+
 	if (e_ident[EI_DATA] == ELFDATA2MSB)
-		e_type >>= 8;
+		e_type = ((unsigned int)p[0] << 8) | p[1];
+	else
+		e_type = ((unsigned int)p[1] << 8) | p[0];
 
 	printf("  Type:                              ");
 	switch (e_type)
@@ -204,48 +209,58 @@ void print_type(unsigned int e_type, unsigned char *e_ident)
 
 /**
  * print_entry - Prints the ELF entry point address.
- * @e_entry: The address of the entry point.
+ * @buf: A pointer to the header buffer.
  * @e_ident: A pointer to an array containing the ELF class.
  */
-void print_entry(unsigned long int e_entry, unsigned char *e_ident)
+void print_entry(unsigned char *buf, unsigned char *e_ident)
 {
-	if (e_ident[EI_DATA] == ELFDATA2MSB)
-	{
-		if (e_ident[EI_CLASS] == ELFCLASS64)
-		{
-			unsigned char *p = (unsigned char *)&e_entry;
-			unsigned long int res = 0;
-			int i;
+	unsigned long int e_entry = 0;
+	unsigned char *p = buf + 24;
 
-			for (i = 7; i >= 0; i--)
-			{
-				res = (res << 8) | p[i];
-			}
-			e_entry = res;
+	if (e_ident[EI_CLASS] == ELFCLASS64)
+	{
+		if (e_ident[EI_DATA] == ELFDATA2MSB)
+		{
+			e_entry = ((unsigned long int)p[0] << 56) |
+				  ((unsigned long int)p[1] << 48) |
+				  ((unsigned long int)p[2] << 40) |
+				  ((unsigned long int)p[3] << 32) |
+				  ((unsigned long int)p[4] << 24) |
+				  ((unsigned long int)p[5] << 16) |
+				  ((unsigned long int)p[6] << 8) |
+				  (unsigned long int)p[7];
 		}
 		else
 		{
-			unsigned int entry32 = (unsigned int)e_entry;
-			unsigned char *p = (unsigned char *)&entry32;
-			unsigned int res = 0;
-			int i;
-
-			for (i = 3; i >= 0; i--)
-			{
-				res = (res << 8) | p[i];
-			}
-			e_entry = res;
+			e_entry = ((unsigned long int)p[7] << 56) |
+				  ((unsigned long int)p[6] << 48) |
+				  ((unsigned long int)p[5] << 40) |
+				  ((unsigned long int)p[4] << 32) |
+				  ((unsigned long int)p[3] << 24) |
+				  ((unsigned long int)p[2] << 16) |
+				  ((unsigned long int)p[1] << 8) |
+				  (unsigned long int)p[0];
 		}
-	}
-
-	printf("  Entry point address:               ");
-	if (e_ident[EI_CLASS] == ELFCLASS64)
-	{
-		printf("%#lx\n", e_entry);
+		printf("  Entry point address:               %#lx\n", e_entry);
 	}
 	else
 	{
-		printf("%#x\n", (unsigned int)e_entry);
+		if (e_ident[EI_DATA] == ELFDATA2MSB)
+		{
+			e_entry = ((unsigned long int)p[0] << 24) |
+				  ((unsigned long int)p[1] << 16) |
+				  ((unsigned long int)p[2] << 8) |
+				  (unsigned long int)p[3];
+		}
+		else
+		{
+			e_entry = ((unsigned long int)p[3] << 24) |
+				  ((unsigned long int)p[2] << 16) |
+				  ((unsigned long int)p[1] << 8) |
+				  (unsigned long int)p[0];
+		}
+		printf("  Entry point address:               %#x\n",
+		       (unsigned int)e_entry);
 	}
 }
 
@@ -271,10 +286,7 @@ void close_file(int fd)
  */
 int main(int ac, char **av)
 {
-	union {
-		Elf64_Ehdr ehdr64;
-		Elf32_Ehdr ehdr32;
-	} header;
+	unsigned char buffer[sizeof(Elf64_Ehdr)];
 	int fd, r;
 
 	if (ac != 2)
@@ -290,7 +302,7 @@ int main(int ac, char **av)
 		exit(98);
 	}
 
-	r = read(fd, &header, sizeof(Elf64_Ehdr));
+	r = read(fd, buffer, sizeof(Elf64_Ehdr));
 	if (r == -1)
 	{
 		dprintf(2, "Error: Can't read from file %s\n", av[1]);
@@ -298,25 +310,16 @@ int main(int ac, char **av)
 		exit(98);
 	}
 
-	check_elf(header.ehdr64.e_ident);
+	check_elf(buffer);
 	printf("ELF Header:\n");
-	print_magic(header.ehdr64.e_ident);
-	print_class(header.ehdr64.e_ident);
-	print_data(header.ehdr64.e_ident);
-	print_version(header.ehdr64.e_ident);
-	print_osabi(header.ehdr64.e_ident);
-	print_abi(header.ehdr64.e_ident);
-
-	if (header.ehdr64.e_ident[EI_CLASS] == ELFCLASS64)
-	{
-		print_type(header.ehdr64.e_type, header.ehdr64.e_ident);
-		print_entry(header.ehdr64.e_entry, header.ehdr64.e_ident);
-	}
-	else
-	{
-		print_type(header.ehdr32.e_type, header.ehdr32.e_ident);
-		print_entry(header.ehdr32.e_entry, header.ehdr32.e_ident);
-	}
+	print_magic(buffer);
+	print_class(buffer);
+	print_data(buffer);
+	print_version(buffer);
+	print_osabi(buffer);
+	print_abi(buffer);
+	print_type(buffer, buffer);
+	print_entry(buffer, buffer);
 
 	close_file(fd);
 	return (0);
