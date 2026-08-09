@@ -113,6 +113,34 @@ void print_version(unsigned char *e_ident)
 }
 
 /**
+ * print_osabi_more - Prints additional OS/ABI options.
+ * @e_ident: ELF identification array.
+ */
+void print_osabi_more(unsigned char *e_ident)
+{
+	switch (e_ident[EI_OSABI])
+	{
+	case ELFOSABI_IRIX:
+		printf("UNIX - IRIX\n");
+		break;
+	case ELFOSABI_FREEBSD:
+		printf("UNIX - FreeBSD\n");
+		break;
+	case ELFOSABI_TRU64:
+		printf("UNIX - TRU64 UNIX\n");
+		break;
+	case ELFOSABI_ARM:
+		printf("ARM\n");
+		break;
+	case ELFOSABI_STANDALONE:
+		printf("Standalone App\n");
+		break;
+	default:
+		printf("<unknown: %x>\n", e_ident[EI_OSABI]);
+	}
+}
+
+/**
  * print_osabi - Prints the ELF OS/ABI.
  * @e_ident: A pointer to an array containing the ELF OS/ABI.
  */
@@ -139,23 +167,9 @@ void print_osabi(unsigned char *e_ident)
 	case ELFOSABI_AIX:
 		printf("UNIX - AIX\n");
 		break;
-	case ELFOSABI_IRIX:
-		printf("UNIX - IRIX\n");
-		break;
-	case ELFOSABI_FREEBSD:
-		printf("UNIX - FreeBSD\n");
-		break;
-	case ELFOSABI_TRU64:
-		printf("UNIX - TRU64 UNIX\n");
-		break;
-	case ELFOSABI_ARM:
-		printf("ARM\n");
-		break;
-	case ELFOSABI_STANDALONE:
-		printf("Standalone App\n");
-		break;
 	default:
-		printf("<unknown: %x>\n", e_ident[EI_OSABI]);
+		print_osabi_more(e_ident);
+		break;
 	}
 }
 
@@ -208,60 +222,79 @@ void print_type(unsigned char *buf, unsigned char *e_ident)
 }
 
 /**
+ * print_entry_64 - Prints 64-bit entry point address.
+ * @p: Pointer to the address bytes.
+ * @e_ident: ELF identification array.
+ */
+void print_entry_64(unsigned char *p, unsigned char *e_ident)
+{
+	unsigned long int e_entry = 0;
+
+	if (e_ident[EI_DATA] == ELFDATA2MSB)
+	{
+		e_entry = ((unsigned long int)p[0] << 56) |
+			  ((unsigned long int)p[1] << 48) |
+			  ((unsigned long int)p[2] << 40) |
+			  ((unsigned long int)p[3] << 32) |
+			  ((unsigned long int)p[4] << 24) |
+			  ((unsigned long int)p[5] << 16) |
+			  ((unsigned long int)p[6] << 8) |
+			  (unsigned long int)p[7];
+	}
+	else
+	{
+		e_entry = ((unsigned long int)p[7] << 56) |
+			  ((unsigned long int)p[6] << 48) |
+			  ((unsigned long int)p[5] << 40) |
+			  ((unsigned long int)p[4] << 32) |
+			  ((unsigned long int)p[3] << 24) |
+			  ((unsigned long int)p[2] << 16) |
+			  ((unsigned long int)p[1] << 8) |
+			  (unsigned long int)p[0];
+	}
+	printf("  Entry point address:               %#lx\n", e_entry);
+}
+
+/**
+ * print_entry_32 - Prints 32-bit entry point address.
+ * @p: Pointer to the address bytes.
+ * @e_ident: ELF identification array.
+ */
+void print_entry_32(unsigned char *p, unsigned char *e_ident)
+{
+	unsigned long int e_entry = 0;
+
+	if (e_ident[EI_DATA] == ELFDATA2MSB)
+	{
+		e_entry = ((unsigned long int)p[0] << 24) |
+			  ((unsigned long int)p[1] << 16) |
+			  ((unsigned long int)p[2] << 8) |
+			  (unsigned long int)p[3];
+	}
+	else
+	{
+		e_entry = ((unsigned long int)p[3] << 24) |
+			  ((unsigned long int)p[2] << 16) |
+			  ((unsigned long int)p[1] << 8) |
+			  (unsigned long int)p[0];
+	}
+	printf("  Entry point address:               %#x\n",
+	       (unsigned int)e_entry);
+}
+
+/**
  * print_entry - Prints the ELF entry point address.
  * @buf: A pointer to the header buffer.
  * @e_ident: A pointer to an array containing the ELF class.
  */
 void print_entry(unsigned char *buf, unsigned char *e_ident)
 {
-	unsigned long int e_entry = 0;
 	unsigned char *p = buf + 24;
 
 	if (e_ident[EI_CLASS] == ELFCLASS64)
-	{
-		if (e_ident[EI_DATA] == ELFDATA2MSB)
-		{
-			e_entry = ((unsigned long int)p[0] << 56) |
-				  ((unsigned long int)p[1] << 48) |
-				  ((unsigned long int)p[2] << 40) |
-				  ((unsigned long int)p[3] << 32) |
-				  ((unsigned long int)p[4] << 24) |
-				  ((unsigned long int)p[5] << 16) |
-				  ((unsigned long int)p[6] << 8) |
-				  (unsigned long int)p[7];
-		}
-		else
-		{
-			e_entry = ((unsigned long int)p[7] << 56) |
-				  ((unsigned long int)p[6] << 48) |
-				  ((unsigned long int)p[5] << 40) |
-				  ((unsigned long int)p[4] << 32) |
-				  ((unsigned long int)p[3] << 24) |
-				  ((unsigned long int)p[2] << 16) |
-				  ((unsigned long int)p[1] << 8) |
-				  (unsigned long int)p[0];
-		}
-		printf("  Entry point address:               %#lx\n", e_entry);
-	}
+		print_entry_64(p, e_ident);
 	else
-	{
-		if (e_ident[EI_DATA] == ELFDATA2MSB)
-		{
-			e_entry = ((unsigned long int)p[0] << 24) |
-				  ((unsigned long int)p[1] << 16) |
-				  ((unsigned long int)p[2] << 8) |
-				  (unsigned long int)p[3];
-		}
-		else
-		{
-			e_entry = ((unsigned long int)p[3] << 24) |
-				  ((unsigned long int)p[2] << 16) |
-				  ((unsigned long int)p[1] << 8) |
-				  (unsigned long int)p[0];
-		}
-		printf("  Entry point address:               %#x\n",
-		       (unsigned int)e_entry);
-	}
+		print_entry_32(p, e_ident);
 }
 
 /**
