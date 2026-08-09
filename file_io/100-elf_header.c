@@ -211,15 +211,31 @@ void print_entry(unsigned long int e_entry, unsigned char *e_ident)
 {
 	if (e_ident[EI_DATA] == ELFDATA2MSB)
 	{
-		unsigned char *p = (unsigned char *)&e_entry;
-		unsigned long int res = 0;
-		int i;
-
-		for (i = 7; i >= 0; i--)
+		if (e_ident[EI_CLASS] == ELFCLASS64)
 		{
-			res = (res << 8) | p[i];
+			unsigned char *p = (unsigned char *)&e_entry;
+			unsigned long int res = 0;
+			int i;
+
+			for (i = 7; i >= 0; i--)
+			{
+				res = (res << 8) | p[i];
+			}
+			e_entry = res;
 		}
-		e_entry = res;
+		else
+		{
+			unsigned int entry32 = (unsigned int)e_entry;
+			unsigned char *p = (unsigned char *)&entry32;
+			unsigned int res = 0;
+			int i;
+
+			for (i = 3; i >= 0; i--)
+			{
+				res = (res << 8) | p[i];
+			}
+			e_entry = res;
+		}
 	}
 
 	printf("  Entry point address:               ");
