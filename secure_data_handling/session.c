@@ -4,81 +4,106 @@
 
 /**
  * session_create - Creates a new session struct
- * @id: Session identifier
+ * @id: Session string identifier
+ * @uid: User ID
+ * @data: Pointer to session data buffer
+ * @data_len: Length of session data in bytes
  *
  * Return: Pointer to created session, or NULL on failure
  */
-session_t *session_create(int id)
+session_t *session_create(const char *id, unsigned int uid,
+			  const unsigned char *data, size_t data_len)
 {
 	session_t *s;
+
+	if (!id)
+		return (NULL);
 
 	s = malloc(sizeof(session_t));
 	if (!s)
 		return (NULL);
 
-	s->id = id;
-	s->data = NULL;
-	s->size = 0;
+	s->id = strdup(id);
+	if (!s->id)
+	{
+		free(s);
+		return (NULL);
+	}
+
+	s->uid = uid;
+	if (data && data_len > 0)
+	{
+		s->data = malloc(data_len);
+		if (!s->data)
+		{
+			free(s->id);
+			free(s);
+			return (NULL);
+		}
+		memcpy(s->data, data, data_len);
+		s->data_len = data_len;
+	}
+	else
+	{
+		s->data = NULL;
+		s->data_len = 0;
+	}
 
 	return (s);
 }
 
 /**
- * session_set_data - Sets or updates session data securely
- * @session: Pointer to session struct
- * @data: Pointer to data buffer
- * @size: Size of data in bytes
+ * session_set_data - Updates data buffer of a session safely
+ * @s: Pointer to session struct
+ * @data: Pointer to new data buffer
+ * @data_len: Length of new data in bytes
  *
  * Return: 0 on success, -1 on failure
  */
-int session_set_data(session_t *session, const void *data, size_t size)
+int session_set_data(session_t *s, const unsigned char *data, size_t data_len)
 {
-	void *new_data;
+	unsigned char *new_data = NULL;
 
-	if (!session)
+	if (!s)
 		return (-1);
 
-	if (data && size > 0)
+	if (data && data_len > 0)
 	{
-		new_data = malloc(size);
+		new_data = malloc(data_len);
 		if (!new_data)
 			return (-1);
-		memcpy(new_data, data, size);
-	}
-	else
-	{
-		new_data = NULL;
-		size = 0;
+		memcpy(new_data, data, data_len);
 	}
 
-	if (session->data)
+	if (s->data)
 	{
-		memset(session->data, 0, session->size);
-		free(session->data);
+		memset(s->data, 0, s->data_len);
+		free(s->data);
 	}
 
-	session->data = new_data;
-	session->size = size;
+	s->data = new_data;
+	s->data_len = (new_data) ? data_len : 0;
 
 	return (0);
 }
 
 /**
- * session_destroy - Safely clears and frees a session
- * @session: Pointer to session struct
+ * session_destroy - Safely clears and frees session memory
+ * @s: Pointer to session struct
  */
-void session_destroy(session_t *session)
+void session_destroy(session_t *s)
 {
-	if (!session)
+	if (!s)
 		return;
 
-	if (session->data)
+	if (s->id)
+		free(s->id);
+
+	if (s->data)
 	{
-		memset(session->data, 0, session->size);
-		free(session->data);
-		session->data = NULL;
-		session->size = 0;
+		memset(s->data, 0, s->data_len);
+		free(s->data);
 	}
 
-	free(session);
+	free(s);
 }
