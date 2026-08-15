@@ -19,32 +19,32 @@ void store_init(store_t *st)
  * @st: Pointer to store struct
  * @s: Pointer to session struct
  *
- * Return: 0 on success, -1 on failure or duplicate ID
+ * Return: 1 on success, 0 on failure or duplicate ID
  */
 int store_add(store_t *st, session_t *s)
 {
 	node_t *new_node, *curr;
 
 	if (!st || !s || !s->id)
-		return (-1);
+		return (0);
 
 	curr = st->head;
 	while (curr)
 	{
 		if (curr->sess && curr->sess->id && strcmp(curr->sess->id, s->id) == 0)
-			return (-1);
+			return (0);
 		curr = curr->next;
 	}
 
 	new_node = malloc(sizeof(node_t));
 	if (!new_node)
-		return (-1);
+		return (0);
 
 	new_node->sess = s;
 	new_node->next = st->head;
 	st->head = new_node;
 
-	return (0);
+	return (1);
 }
 
 /**
@@ -85,7 +85,11 @@ int store_delete(store_t *st, const char *id, session_t **out)
 	node_t *curr, *prev = NULL;
 
 	if (!st || !id)
+	{
+		if (out)
+			*out = NULL;
 		return (0);
+	}
 
 	curr = st->head;
 	while (curr)
@@ -108,6 +112,9 @@ int store_delete(store_t *st, const char *id, session_t **out)
 		prev = curr;
 		curr = curr->next;
 	}
+
+	if (out)
+		*out = NULL;
 
 	return (0);
 }

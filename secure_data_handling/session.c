@@ -58,20 +58,20 @@ session_t *session_create(const char *id, unsigned int uid,
  * @data: Pointer to new data buffer
  * @data_len: Length of new data in bytes
  *
- * Return: 0 on success, -1 on failure
+ * Return: 1 on success, 0 on failure
  */
 int session_set_data(session_t *s, const unsigned char *data, size_t data_len)
 {
 	unsigned char *new_data = NULL;
 
 	if (!s)
-		return (-1);
+		return (0);
 
 	if (data && data_len > 0)
 	{
 		new_data = malloc(data_len);
 		if (!new_data)
-			return (-1);
+			return (0);
 		memcpy(new_data, data, data_len);
 	}
 
@@ -84,7 +84,7 @@ int session_set_data(session_t *s, const unsigned char *data, size_t data_len)
 	s->data = new_data;
 	s->data_len = (new_data) ? data_len : 0;
 
-	return (0);
+	return (1);
 }
 
 /**
