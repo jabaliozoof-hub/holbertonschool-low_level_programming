@@ -25,20 +25,32 @@ int store_add(store_t *st, session_t *s)
 {
 	node_t *new_node, *curr;
 
-	if (!st || !s || !s->id)
+	if (!st || !s)
 		return (0);
+
+	if (!s->id)
+	{
+		session_destroy(s);
+		return (0);
+	}
 
 	curr = st->head;
 	while (curr)
 	{
 		if (curr->sess && curr->sess->id && strcmp(curr->sess->id, s->id) == 0)
+		{
+			session_destroy(s);
 			return (0);
+		}
 		curr = curr->next;
 	}
 
 	new_node = malloc(sizeof(node_t));
 	if (!new_node)
+	{
+		session_destroy(s);
 		return (0);
+	}
 
 	new_node->sess = s;
 	new_node->next = st->head;
